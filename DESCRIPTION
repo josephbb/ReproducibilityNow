@@ -1,0 +1,23 @@
+Package: reproducibility.now
+Type: Project
+Title: Reproducible Now Environment
+Version: 0.1.0
+Additional_repositories: https://stan-dev.r-universe.dev
+Imports:
+    tidyverse,
+    data.table,
+    broom,
+    janitor,
+    here,
+    yaml,
+    tidymodels,
+    gt,
+    gtsummary,
+    arrow,
+    targets,
+    brms,
+    bayesplot,
+    posterior,
+    loo,
+    tidybayes,
+    cmdstanr

@@ -1,0 +1,21 @@
+[project]
+name = "reproducibility-now"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+# Add/remove Python packages here, then: uv lock && uv sync
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "seaborn",
+  "statsmodels",
+  "pymc",
+  "arviz",
+  "pyyaml",
+  "jupyter",
+  "ipykernel",
+]
+
+[tool.uv]
+package = false

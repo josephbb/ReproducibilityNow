@@ -1,0 +1,20 @@
+---
+title: "Analysis"
+output: html_notebook
+---
+
+Run from the project root after: `nix develop` && `renv::restore()`
+
+```{r setup}
+library(tidyverse)
+library(here)
+library(yaml)
+
+config <- read_yaml(here("analysis", "analysis_config.yaml"))
+set.seed(config$seed)
+```
+
+```{r load-data}
+dataset_one <- read_csv(here(config$paths$dataset_one), show_col_types = FALSE)
+dataset_one
+```

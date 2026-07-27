@@ -1,0 +1,27 @@
+# Shared analysis settings (read by both R and Python)
+
+analysis:
+  python: ["analysis.ipynb"]
+  r: ["analysis.R"]
+  rmarkdown: ["analysis.Rmd"]
+
+paths:
+  raw: data/raw
+  generated: data/generated
+  figures: output/figures
+  tables: output/tables
+  dataset_one: data/raw/dataset_one.csv
+  results: output/results.json
+
+seed: 42
+
+
+
+# Language-specific settings (optional)
+r:
+  chains: 4
+  iter: 2000
+
+python:
+  draws: 1000
+  tune: 1000
