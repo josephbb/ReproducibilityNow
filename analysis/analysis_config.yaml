@@ -1,7 +1,6 @@
 # Shared analysis settings (read by both R and Python)
-
 analysis:
-  python: ["analysis.ipynb"]
+  python: ["analysis.ipynb", "analysis.py"]
   r: ["analysis.R"]
   rmarkdown: ["analysis.Rmd"]
 
@@ -15,7 +14,18 @@ paths:
 
 seed: 42
 
-
+# Named plot palette (shared by R / Python figures)
+palette:
+  name: hinoki_forest
+  colors:
+    mist_sky: "#E8F1EC"
+    hinoki_bark: "#CDBB9C"
+    moss_light: "#B7C9A0"
+    cedar_needle: "#7E9A72"
+    forest_shade: "#4E6B53"
+    deep_grove: "#2F4A3C"
+    stone_path: "#8F8A7A"
+    ember_clay: "#A66A53"
 
 # Language-specific settings (optional)
 r:

@@ -3,18 +3,112 @@ title: "Analysis"
 output: html_notebook
 ---
 
-Run from the project root after: `nix develop` && `renv::restore()`
+`nix develop` then `renv::restore()` from the project root.
 
 ```{r setup}
 library(tidyverse)
 library(here)
 library(yaml)
+library(jsonlite)
+library(brms)
+library(posterior)
+library(bayesplot)
 
 config <- read_yaml(here("analysis", "analysis_config.yaml"))
 set.seed(config$seed)
+pal <- config$palette$colors
+
+fig_dir <- here(config$paths$figures)
+tab_dir <- here(config$paths$tables)
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(tab_dir, recursive = TRUE, showWarnings = FALSE)
+
+save_results <- function(name, x) {
+  path <- here(config$paths$results)
+  out <- if (file.exists(path)) fromJSON(path, simplifyVector = FALSE) else list()
+  out[[name]] <- x
+  write_json(out, path, pretty = TRUE, auto_unbox = TRUE)
+}
+
+df <- read_csv(here(config$paths$dataset_one), show_col_types = FALSE)
+df
 ```
 
-```{r load-data}
-dataset_one <- read_csv(here(config$paths$dataset_one), show_col_types = FALSE)
-dataset_one
+## t-test
+
+```{r ttest}
+tt <- t.test(outcome ~ treatment, data = df, var.equal = TRUE)
+tt
+
+save_results("ttest_ind_r", list(
+  statistic = unname(tt$statistic),
+  pvalue = tt$p.value,
+  df = unname(tt$parameter)
+))
+```
+
+## brms
+
+```{r fit}
+df <- df |> mutate(treatment = factor(treatment, levels = c(0, 1)))
+
+fit <- brm(
+  outcome ~ 0 + treatment,
+  data = df,
+  family = gaussian(),
+  prior = c(
+    prior(normal(0, 10), class = b),
+    prior(normal(0, 10), class = sigma)
+  ),
+  chains = config$r$chains,
+  iter = config$r$iter,
+  seed = config$seed,
+  backend = "cmdstanr",
+  silent = 2,
+  refresh = 0
+)
+fit
+```
+
+```{r effect}
+draws <- as_draws_df(fit)
+beta <- draws$b_treatment1 - draws$b_treatment0
+
+summ <- tibble(
+  term = c("b_treatment0", "b_treatment1", "sigma"),
+  mean = c(mean(draws$b_treatment0), mean(draws$b_treatment1), mean(draws$sigma)),
+  sd = c(sd(draws$b_treatment0), sd(draws$b_treatment1), sd(draws$sigma)),
+  q03 = c(
+    quantile(draws$b_treatment0, 0.03),
+    quantile(draws$b_treatment1, 0.03),
+    quantile(draws$sigma, 0.03)
+  ),
+  q97 = c(
+    quantile(draws$b_treatment0, 0.97),
+    quantile(draws$b_treatment1, 0.97),
+    quantile(draws$sigma, 0.97)
+  )
+)
+summ
+write_csv(summ, file.path(tab_dir, "brms_alpha_sigma.csv"))
+
+save_results("treatment_effect_r", list(
+  beta = mean(beta),
+  ci_low = unname(quantile(beta, 0.03)),
+  ci_high = unname(quantile(beta, 0.97))
+))
+
+color_scheme_set(c(
+  pal$mist_sky, pal$moss_light, pal$cedar_needle,
+  pal$forest_shade, pal$deep_grove, pal$ember_clay
+))
+mcmc_intervals(cbind(beta = beta), prob = 0.89, prob_outer = 0.94) +
+  theme(plot.background = element_rect(fill = pal$mist_sky, color = NA))
+ggsave(
+  file.path(fig_dir, "trace_treatment_effect_r.png"),
+  width = 6,
+  height = 3,
+  dpi = 150,
+  device = grDevices::png
+)
 ```

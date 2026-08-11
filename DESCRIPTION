@@ -10,6 +10,7 @@ Imports:
     janitor,
     here,
     yaml,
+    jsonlite,
     tidymodels,
     gt,
     gtsummary,
