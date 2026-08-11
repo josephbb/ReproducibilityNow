@@ -27,17 +27,25 @@ Or just:
 nix develop -c just sync
 ```
 
-## Run the analysis
+## Just commands
 
-From inside `nix develop`:
+Run these from inside `nix develop` (or as `nix develop -c just <recipe>`).
 
-```bash
-just reproduce
-```
+| Command | What it does |
+| --- | --- |
+| `just` / `just --list` | List recipes |
+| `just sync-py` | Restore Python deps (`uv sync`) |
+| `just sync-r` | Restore R deps (`renv::restore()`) |
+| `just sync` | Both of the above |
+| `just py` | Run `analysis/analysis.py` |
+| `just ipynb` | Execute `analysis/analysis.ipynb` in place |
+| `just r` | Run `analysis/analysis.R` |
+| `just rmd` | Render `analysis/analysis.Rmd` → `output/analysis.nb.html` |
+| `just reproduce` | Sync + run the first existing entrypoint (see below) |
+| `just rstudio` | Open system RStudio pointed at Nix R |
+| `just clean` | Wipe `.venv`, renv library caches, and generated `output/` |
 
-That picks one entrypoint (first that exists): `analysis.Rmd` → `analysis.ipynb` → `analysis.R` → `analysis.py`.
-
-Force a specific one with `just py`, `just ipynb`, `just r`, or `just rmd`.
+`just reproduce` picks one entrypoint (first that exists): `analysis.Rmd` → `analysis.ipynb` → `analysis.R` → `analysis.py`.
 
 One-liner from a cold clone:
 
@@ -47,11 +55,6 @@ nix develop -c just reproduce
 
 Outputs land in `output/` (figures, tables, `results.json`).
 
-```bash
-just clean       # wipe .venv, renv library, and output/
-just reproduce   # sync + run the active entrypoint
-```
-
 ## Editing packages
 
 - Python: `pyproject.toml`, then `uv lock && uv sync`
@@ -59,6 +62,21 @@ just reproduce   # sync + run the active entrypoint
 
 ## RStudio / Jupyter
 
-RStudio: use your normal install, pointed at Nix’s R (`RSTUDIO_WHICH_R="$(which R)" open -a RStudio` on Mac; `rstudio` on Linux inside the shell).
+RStudio (system GUI, Nix R):
+
+```bash
+nix develop
+just rstudio
+```
+
+That sets `RSTUDIO_WHICH_R` to the Nix `R` and launches your normal RStudio. Prefer fitting models with `just r` / `Rscript` if GUI library loading acts up on macOS.
+
+If CmdStan complains about precompiled headers / `rebuild_cmdstan()`, the Nix CmdStan path is read-only. Install a writable copy once:
+
+```r
+cmdstanr::install_cmdstan()
+```
+
+`nix develop` and `just rstudio` then prefer `~/.cmdstan/cmdstan-*` over the store path.
 
 Jupyter in VS Code/Cursor: `./scripts/register-jupyter-kernel.sh`, then pick the project kernel.

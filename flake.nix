@@ -120,6 +120,16 @@
                 ]
               }:$PATH"
 
+              # Nix CmdStan is read-only; PCH rebuilds need a writable install.
+              # Prefer ~/.cmdstan/cmdstan-* when present (cmdstanr::install_cmdstan()).
+              if [ -d "$HOME/.cmdstan" ]; then
+                _user_cmdstan="$(ls -d "$HOME/.cmdstan"/cmdstan-* 2>/dev/null | sort -V | tail -1 || true)"
+                if [ -n "$_user_cmdstan" ] && [ -x "$_user_cmdstan/bin/stanc" ]; then
+                  export CMDSTAN="$_user_cmdstan"
+                fi
+                unset _user_cmdstan
+              fi
+
               echo
               echo "  nix develop shell ready on ${system}"
               echo
@@ -128,9 +138,9 @@
               echo "     or: just sync / just reproduce"
               ${
                 if pkgs.stdenv.isLinux then
-                  ''echo "  3. rstudio                      # system GUI + Nix R"''
+                  ''echo "  3. just rstudio                 # system GUI + Nix R"''
                 else
-                  ''echo "  3. open RStudio.app             # set RSTUDIO_WHICH_R to Nix R if needed"''
+                  ''echo "  3. just rstudio                 # RStudio.app + Nix R"''
               }
               echo "  4. ./scripts/register-jupyter-kernel.sh   # VS Code Jupyter kernel"
               echo
@@ -139,6 +149,7 @@
               echo
               echo "  Run analysis:      just py | just ipynb | just r | just rmd"
               echo "  Using R:           $(command -v R)"
+              echo "  CmdStan:           ''${CMDSTAN:-<unset>}"
               echo
             '';
           };

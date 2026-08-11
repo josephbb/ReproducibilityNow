@@ -21,6 +21,10 @@ sync-r:
 # Both lockfile restores
 sync: sync-py sync-r
 
+# System RStudio + Nix R (run inside nix develop)
+rstudio:
+    ./scripts/rstudio-nix.sh
+
 # Wipe local installs + generated outputs (keeps lockfiles / source)
 clean:
     #!/usr/bin/env bash
