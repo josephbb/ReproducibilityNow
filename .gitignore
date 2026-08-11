@@ -33,6 +33,14 @@ Thumbs.db
 # Local script state
 scripts/.jupyter-ld-library-path
 
+# Analysis outputs (regenerate with just reproduce / just r / …)
+output/figures/*
+!output/figures/.gitkeep
+output/tables/*
+!output/tables/.gitkeep
+output/*.html
+Rplots.pdf
+
 # Uncomment to keep raw data local-only (keep data/raw/.gitkeep tracked):
 # data/raw/*
 # !data/raw/.gitkeep
