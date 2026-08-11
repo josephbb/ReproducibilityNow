@@ -1,12 +1,15 @@
+# Nix / direnv
 .direnv/
 result
 result-*
 
+# Python
 .venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 
+# R / renv
 renv/library/
 renv/local/
 renv/cellar/
@@ -19,4 +22,17 @@ renv/staging/
 *.Rproj
 .Rproj.user/
 
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local script state
 scripts/.jupyter-ld-library-path
+
+# Uncomment to keep raw data local-only (keep data/raw/.gitkeep tracked):
+# data/raw/*
+# !data/raw/.gitkeep
